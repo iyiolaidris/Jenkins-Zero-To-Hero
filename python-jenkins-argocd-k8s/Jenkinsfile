@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout'){
            steps {
                 git credentialsId: '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', 
-                url: 'https://github.com/iyiolaidris/cicd-end-to-end.git',
+                url: 'https://github.com/iyiolaidris/Jenkins-Zero-To-Hero.git',
                 branch: 'main'
            }
         }
