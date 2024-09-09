@@ -45,35 +45,33 @@ pipeline {
         }
       }
     }
-    stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
-            GIT_USER_NAME = "iyiolaidris"
-            GIT_EMAIL = "iyiolaidris@yahoo.com"
+    stage('Checkout K8S manifest SCM'){
+            steps {
+                git credentialsId: 'github', 
+                url: 'https://github.com/iyiolaidris/Jenkins-Zero-To-Hero.git',
+                branch: 'main'
+            }
         }
-        steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh '''
-                    set -e
-                    cd java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests
-                    echo "Current Directory:"
-                    pwd
-                    echo "Directory Contents:"
-                    ls -la
-                    echo "Git Status:"
-                    git status
-                    echo "Git Remote -v:"
-                    git remote -v
-                    git config user.email "${GIT_EMAIL}"
-                    git config user.name "${GIT_USER_NAME}"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" deployment.yml
-                    git add deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                '''
+        
+        stage('Update K8S manifest & push to Repo'){
+            environment {
+                BUILD_NUMBER=${BUILD_NUMBER} 
+            }
+            steps {
+                script{
+                    withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                        sh '''
+                        cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                        cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                        git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                        git remote -v
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/iyiolaidris/Jenkins-Zero-To-Hero.git HEAD:main
+                        '''                        
+                    }
+                }
             }
         }
     }
-  }
 }
