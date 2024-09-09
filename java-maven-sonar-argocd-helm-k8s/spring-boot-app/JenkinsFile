@@ -49,14 +49,12 @@ pipeline {
         environment {
             GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
             GIT_USER_NAME = "iyiolaidris"
-            GIT_EMAIL = "iyiolaidris@yahoo.com"
         }
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
                     set -e
                     cd java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests
-                    git config user.email "${GIT_EMAIL}"
                     git config user.name "${GIT_USER_NAME}"
                     BUILD_NUMBER=${BUILD_NUMBER}
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" deployment.yml
