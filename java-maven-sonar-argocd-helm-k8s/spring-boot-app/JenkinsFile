@@ -54,14 +54,12 @@ pipeline {
         }
         
         stage('Update K8S manifest & push to Repo'){
-            environment {
-                BUILD_NUMBER=${BUILD_NUMBER} 
-            }
             steps {
                 script{
                     withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         sh '''
                         cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                        BUILD_NUMBER=${BUILD_NUMBER}
                         sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                         cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                         git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
