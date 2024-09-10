@@ -58,6 +58,7 @@ pipeline {
                 script{
                     withCredentials([usernamePassword(credentialsId: 'githubb', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         sh '''
+                        git config --global --add safe.directory "/var/lib/jenkins/workspace/drihajj project"
                         cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                         BUILD_NUMBER=${BUILD_NUMBER}
                         sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
